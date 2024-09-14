@@ -1,0 +1,1 @@
+fn({type error}, Option<{type error}>, ConnectInfo<std::net::SocketAddr>) -> impl futures::Future<Output = impl axum::response::IntoResponse> {ws_handler}
