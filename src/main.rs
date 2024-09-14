@@ -24,6 +24,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (layer, io) = SocketIo::new_layer();
 
     io.ns("/", on_connect);
+    //comment
 
     let app = Router::new()
         .route("/", get(hey_world))

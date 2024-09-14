@@ -1,5 +1,5 @@
 cargo:rerun-if-env-changed=ZSTD_SYS_USE_PKG_CONFIG
-OUT_DIR = Some(/Users/black/code/rust/webdev/Hey/target/debug/build/zstd-sys-6247881629ddb25f/out)
+OUT_DIR = Some(/Users/black/code/rust/webdev/h/target/debug/build/zstd-sys-6247881629ddb25f/out)
 TARGET = Some(aarch64-apple-darwin)
 OPT_LEVEL = Some(0)
 HOST = Some(aarch64-apple-darwin)
@@ -26,7 +26,7 @@ cargo:rerun-if-env-changed=HOST_CFLAGS
 HOST_CFLAGS = None
 cargo:rerun-if-env-changed=CFLAGS
 CFLAGS = None
-OUT_DIR = Some(/Users/black/code/rust/webdev/Hey/target/debug/build/zstd-sys-6247881629ddb25f/out)
+OUT_DIR = Some(/Users/black/code/rust/webdev/h/target/debug/build/zstd-sys-6247881629ddb25f/out)
 cargo:rerun-if-env-changed=CC_ENABLE_DEBUG_OUTPUT
 cargo:rerun-if-env-changed=CRATE_CC_NO_DEFAULTS
 CRATE_CC_NO_DEFAULTS = None
@@ -40,7 +40,7 @@ cargo:rerun-if-env-changed=HOST_CFLAGS
 HOST_CFLAGS = None
 cargo:rerun-if-env-changed=CFLAGS
 CFLAGS = None
-OUT_DIR = Some(/Users/black/code/rust/webdev/Hey/target/debug/build/zstd-sys-6247881629ddb25f/out)
+OUT_DIR = Some(/Users/black/code/rust/webdev/h/target/debug/build/zstd-sys-6247881629ddb25f/out)
 cargo:rerun-if-env-changed=CC_ENABLE_DEBUG_OUTPUT
 cargo:rerun-if-env-changed=CRATE_CC_NO_DEFAULTS
 CRATE_CC_NO_DEFAULTS = None
@@ -54,7 +54,7 @@ cargo:rerun-if-env-changed=HOST_CFLAGS
 HOST_CFLAGS = None
 cargo:rerun-if-env-changed=CFLAGS
 CFLAGS = None
-OUT_DIR = Some(/Users/black/code/rust/webdev/Hey/target/debug/build/zstd-sys-6247881629ddb25f/out)
+OUT_DIR = Some(/Users/black/code/rust/webdev/h/target/debug/build/zstd-sys-6247881629ddb25f/out)
 cargo:rerun-if-env-changed=CC_ENABLE_DEBUG_OUTPUT
 cargo:rerun-if-env-changed=CRATE_CC_NO_DEFAULTS
 CRATE_CC_NO_DEFAULTS = None
@@ -110,6 +110,6 @@ HOST_ARFLAGS = None
 cargo:rerun-if-env-changed=ARFLAGS
 ARFLAGS = None
 cargo:rustc-link-lib=static=zstd
-cargo:rustc-link-search=native=/Users/black/code/rust/webdev/Hey/target/debug/build/zstd-sys-6247881629ddb25f/out
-cargo:root=/Users/black/code/rust/webdev/Hey/target/debug/build/zstd-sys-6247881629ddb25f/out
+cargo:rustc-link-search=native=/Users/black/code/rust/webdev/h/target/debug/build/zstd-sys-6247881629ddb25f/out
+cargo:root=/Users/black/code/rust/webdev/h/target/debug/build/zstd-sys-6247881629ddb25f/out
 cargo:include=/Users/black/.cargo/registry/src/index.crates.io-6f17d22bba15001f/zstd-sys-2.0.13+zstd.1.5.6/zstd/lib
