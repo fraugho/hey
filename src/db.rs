@@ -1,4 +1,6 @@
 use sqlx::PgPool;
+use crate::auth::LoginForm;
+use sqlx::{Pool, Postgres};
 
 pub async fn init_db() -> Result<PgPool, sqlx::Error> {
     let database_url = "postgres://casaos:casaos@11.20.44.16:5432/postgres";
@@ -47,11 +49,11 @@ pub struct User {
 #[derive(sqlx::FromRow)]
 struct Password { password: String,salt: String }
 
-pub async fn get_user(form: User, db: Pool<Postgres>) -> Result<Password, sqlx::Error> {
-    sqlx::query_as::<_, Password>("SELECT password, salt FROM users WHERE email = ? OR name = ?")
+pub async fn get_user_auth_info(form: LoginForm, db: &sqlx::PgPool) -> Result<Password, sqlx::Error> {
+    let x = sqlx::query("SELECT password, salt FROM users WHERE email = ? OR name = ?")
         .bind(form.email)
         .bind(form.name)
-        .fetch_optional(&mut db)
+        .fetch_one(&mut db)
         .await
 }
 /*
