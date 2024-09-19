@@ -2,6 +2,7 @@ use axum::{
     response::IntoResponse,
     routing::get,
     routing::post,
+    http::StatusCode,
     Router, Form,
     extract::State
 };
@@ -18,13 +19,13 @@ use tower::ServiceBuilder;
 use std::sync::Arc;
 
 mod db;
+mod sdb;
 mod auth;
 mod message;
+mod state;
 
-#[derive(Clone)]
-struct AppState {
-    db: Pool<Postgres>,
-}
+use crate::state::*;
+
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -36,7 +37,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (layer, io) = SocketIo::new_layer();
 
     io.ns("/", on_connect);
-    //comment
 
     let app = Router::new()
         .route("/", get(hey_world))
@@ -61,7 +61,7 @@ async fn hey_world() -> impl IntoResponse {
 }
 
 async fn login_post(Form(login): Form<auth::LoginForm>, State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    "Hey World"
+    (StatusCode::OK, "wuba wuba dub dub")
 }
 
 async fn login_get() -> impl IntoResponse {
