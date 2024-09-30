@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 axum = {version = "0.7.5", features = ["multipart", "ws"]}
+axum-extra = {version = "0.9.4", features = ["cookie"]}
 
 socketioxide = {version = "0.14.1"}
 
@@ -30,4 +31,9 @@ jsonwebtoken = "9.3"
 names = { version = "0.14.0", default-features = false }
 
 rand = "0.8.5"
-surrealdb = { version = "2.0.1", features = ["kv-mem"] }
+sha2 = "0.10.8"
+hmac = "0.12.1"
+argon2 = "0.5.3"
+anyhow = "1.0.89"
+uuid = "1.10.0"
+dashmap = "6.1.0"

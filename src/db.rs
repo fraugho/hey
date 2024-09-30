@@ -1,10 +1,13 @@
 use sqlx::PgPool;
 use crate::auth::LoginForm;
 use sqlx::{Pool, Postgres};
+use sqlx::postgres::{PgPoolOptions, PgRow};
 
 pub async fn init_db() -> Result<PgPool, sqlx::Error> {
-    let database_url = "postgres://casaos:casaos@11.20.44.16:5432/postgres";
-    let pool = PgPool::connect(database_url).await?;
+    let pool = PgPoolOptions::new()
+        .max_connections(5)
+        .connect("postgres://casaos:casaos@11.20.44.16:5432/postgres")
+        .await?;
 
     // Drop all tables
     let drop_tables = sqlx::query(r#"
@@ -47,17 +50,14 @@ pub struct User {
 }
 
 #[derive(sqlx::FromRow)]
-struct Password { password: String,salt: String }
+struct Password { pub password: String, pub salt: String }
 
-pub async fn get_user_auth_info(form: LoginForm, db: &sqlx::PgPool) -> Result<Password, sqlx::Error> {
-    let x = sqlx::query("SELECT password, salt FROM users WHERE email = ? OR name = ?")
-        .bind(form.email)
-        .bind(form.name)
-        .fetch_one(&mut db)
-        .await
+pub async fn get_user_auth_info(form: &LoginForm, pool: &Pool<Postgres>) -> Result<Password, sqlx::Error> {
+    sqlx::query_as::<_, Password>(
+        "SELECT password, salt FROM users WHERE email = $1 OR name = $2"
+    )
+    .bind(&form.email)
+    .bind(&form.name)
+    .fetch_one(pool)
+    .await
 }
-/*
-pub async fn init_db() -> Result<PgPool, sqlx::Error> {
-PgPool::connect("http://11.20.44.16:5432").await
-}
-*/
