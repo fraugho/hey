@@ -34,18 +34,18 @@ pub async fn check_login(
 ) -> Result<UserSession, LoginError> {
     // Try to get user authentication info from the database
     match get_user_auth_info(form, &state.db).await {
-        Ok(user_info) => {
+        Ok(auth_info) => {
             // Verify the password using Argon2
-            let parsed_hash = PasswordHash::new(&user_info.password)
+            let parsed_hash = PasswordHash::new(&auth_info.password)
                 .map_err(|_| LoginError::InvalidCredentials)?;
             let argon2 = Argon2::default();
 
-            if argon2.verify_password(form.password.as_bytes(), &parsed_hash).is_ok() {
+            let salted_client_password = form.password.clone() + &auth_info.salt;
+
+            if argon2.verify_password(salted_client_password.as_bytes(), &parsed_hash).is_ok() {
                 // Password is correct, return a UserSession
                 Ok(UserSession {
-                    user_id: user_info.id,
-                    email: user_info.email,
-                    name: user_info.name,
+                    username: form.name.to_owned(),
                 })
             } else {
                 Err(LoginError::InvalidCredentials)

@@ -1,1 +1,1 @@
-/Users/black/code/rust/webdev/Hey/target/debug/Hey: /Users/black/code/rust/webdev/Hey/src/db.rs /Users/black/code/rust/webdev/Hey/src/main.rs /Users/black/code/rust/webdev/Hey/src/message.rs
+/Users/black/code/rust/webdev/Hey/target/debug/Hey: /Users/black/code/rust/webdev/Hey/src/auth.rs /Users/black/code/rust/webdev/Hey/src/db.rs /Users/black/code/rust/webdev/Hey/src/main.rs /Users/black/code/rust/webdev/Hey/src/message.rs /Users/black/code/rust/webdev/Hey/src/state.rs

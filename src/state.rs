@@ -9,7 +9,5 @@ pub struct AppState {
 
 #[derive(Clone)]
 pub struct UserSession {
-    pub user_id: i32,
-    pub email: String,
-    pub name: String,
+    pub username: String,
 }
