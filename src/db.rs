@@ -25,7 +25,10 @@ pub async fn init_db() -> Result<PgPool, sqlx::Error> {
     let create_users_table = sqlx::query(r#"
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
-            name TEXT NOT NULL
+            email TEXT NOT NULL,
+            name TEXT NOT NULL,
+            password TEXT NOT NULL,
+            salt TEXT NOT NULL
         );
     "#);
     create_users_table.execute(&pool).await?;
