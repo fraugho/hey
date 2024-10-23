@@ -1,15 +1,15 @@
 use axum::{
-    response::{IntoResponse, Redirect, Response},
-    routing::{get, get_service, post},
-    http::StatusCode,
-    Router, Form,
-    extract::State,
+   response::{IntoResponse, Redirect, Response, Html},
+   routing::{get, get_service, post},
+   http::StatusCode,
+   Router, Form,
+   extract::State,
 };
-use std::path::PathBuf;
+use std::{path::PathBuf, fs};
 use tower_http::services::ServeDir;
 use socketioxide::{
-    extract::{Data, SocketRef},
-    SocketIo,
+   extract::{Data, SocketRef},
+   SocketIo,
 };
 use serde_json::Value;
 use sqlx::Pool;
@@ -30,36 +30,43 @@ mod message;
 mod state;
 use crate::state::*;
 
+async fn serve_html_file(path: &str) -> impl IntoResponse {
+   let html_content = fs::read_to_string(format!("frontend/out/{}", path))
+       .unwrap_or_else(|_| "404 Not Found".to_string());
+   Html(html_content)
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    tracing::subscriber::set_global_default(FmtSubscriber::default())?;
-    let db = db::init_db().await.unwrap();
-    let app_state = Arc::new(AppState {
-        db,
-        session_store: DashMap::new(),
-    });
+   tracing::subscriber::set_global_default(FmtSubscriber::default())?;
+   let db = db::init_db().await.unwrap();
+   let app_state = Arc::new(AppState {
+       db,
+       session_store: DashMap::new(),
+   });
 
-    let (layer, io) = SocketIo::new_layer();
-    io.ns("/", on_connect);
+   let (layer, io) = SocketIo::new_layer();
+   io.ns("/", on_connect);
 
-    let static_files_service = ServeDir::new("frontend/out")
-        .fallback(ServeDir::new("frontend/out").append_index_html_on_directories(true));
+   let static_files_service = ServeDir::new("frontend/out");
 
-    let app = Router::new()
-        .route("/api/", get(hey_world))
-        .route("/api/login", post(login_post))
-        .fallback_service(static_files_service)
-        .with_state(app_state)
-        .layer(
-            ServiceBuilder::new()
-                .layer(CorsLayer::permissive())
-                .layer(layer),
-        );
+   let app = Router::new()
+       .route("/", get(|| serve_html_file("index.html")))
+       .route("/login", get(|| serve_html_file("login.html")))
+       .route("/api/", get(hey_world))
+       .route("/api/login", post(login_post))
+       .fallback_service(static_files_service) // For static assets (_next/, images, etc)
+       .with_state(app_state)
+       .layer(
+           ServiceBuilder::new()
+               .layer(CorsLayer::permissive())
+               .layer(layer),
+       );
 
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:8080").await.unwrap();
-    println!("Listening on http://{}", listener.local_addr().unwrap());
-    axum::serve(listener, app).await.unwrap();
-    Ok(())
+   let listener = tokio::net::TcpListener::bind("127.0.0.1:8080").await.unwrap();
+   println!("Listening on http://{}", listener.local_addr().unwrap());
+   axum::serve(listener, app).await.unwrap();
+   Ok(())
 }
 
 async fn hey_world() -> impl IntoResponse {
