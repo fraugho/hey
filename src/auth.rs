@@ -4,7 +4,14 @@ use crate::state::*;
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use std::fmt;
 use anyhow::Result;
-use uuid::Uuid;
+use axum::{
+    middleware::Next,
+    response::{IntoResponse, Response, Redirect},
+    http::Request,
+    body::Body,
+    extract::State,
+};
+use axum_extra::extract::cookie::CookieJar;
 
 #[derive(serde::Deserialize)]
 pub struct LoginForm {
@@ -55,3 +62,25 @@ pub async fn check_login(
     }
 }
 
+pub async fn require_auth(
+    cookie_jar: CookieJar,
+    State(state): State<Arc<AppState>>,
+    request: Request<Body>,
+    next: Next,
+) -> Response {
+    // Check if there's a session cookie
+    if let Some(session_cookie) = cookie_jar.get("session_id") {
+        // Verify the session exists in our store
+        if state.session_store.contains_key(session_cookie.value()) {
+            // Session is valid, continue to the route handler
+            return next.run(request).await;
+        }
+    }
+    
+    // No valid session found, redirect to login
+    Redirect::to("/login").into_response()
+}
+
+pub fn validate_session(session_id: &str, state: &AppState) -> bool {
+    state.session_store.contains_key(session_id)
+}
