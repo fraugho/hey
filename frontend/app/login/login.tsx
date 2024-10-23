@@ -1,25 +1,24 @@
 import { Button } from "@/components/ui/button"
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
 } from "@/components/ui/tabs"
 import "@/app/globals.css";
- 
+
 export function LoginCard() {
-  return (
-<Tabs defaultValue="Login" className="w-[400px]">
+    return (
+        <Tabs defaultValue="Login" className="w-[400px]">
             <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="Login">Login</TabsTrigger>
                 <TabsTrigger value="Create Account">Create Account</TabsTrigger>
@@ -33,7 +32,7 @@ export function LoginCard() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                        <form >
+                        <form>
                             <div className="space-y-1">
                                 <Label htmlFor="login_username">Username</Label>
                                 <Input id="login_username" name="username" placeholder="Username" />
@@ -44,7 +43,7 @@ export function LoginCard() {
                             </div>
                             <Button type="submit" className="w-full mt-3">Sign In</Button>
                         </form>
-                        <p className="text-center pt-4">"thing"</p>
+                        <p className="text-center pt-4">&quot;thing&quot;</p>
                     </CardContent>
                 </Card>
             </TabsContent>
@@ -68,10 +67,10 @@ export function LoginCard() {
                             </div>
                             <Button type="submit" className="w-full mt-3">Sign Up</Button>
                         </form>
-                        <p className="text-center pt-4">"thing2"</p>
+                        <p className="text-center pt-4">&quot;thing2&quot;</p>
                     </CardContent>
                 </Card>
             </TabsContent>
         </Tabs>
-  )
+    )
 }
