@@ -1,10 +1,12 @@
 use axum::{
     response::{IntoResponse, Redirect, Response},
-    routing::{get, post},
+    routing::{get, get_service, post},
     http::StatusCode,
     Router, Form,
     extract::State,
 };
+use std::path::PathBuf;
+use tower_http::services::ServeDir;
 use socketioxide::{
     extract::{Data, SocketRef},
     SocketIo,
@@ -26,27 +28,27 @@ mod db;
 mod auth;
 mod message;
 mod state;
-
 use crate::state::*;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::subscriber::set_global_default(FmtSubscriber::default())?;
-
     let db = db::init_db().await.unwrap();
-
     let app_state = Arc::new(AppState {
         db,
         session_store: DashMap::new(),
     });
 
     let (layer, io) = SocketIo::new_layer();
-
     io.ns("/", on_connect);
 
+    let static_files_service = ServeDir::new("frontend/out")
+        .fallback(ServeDir::new("frontend/out").append_index_html_on_directories(true));
+
     let app = Router::new()
-        .route("/", get(hey_world))
-        .route("/login", post(login_post))
+        .route("/api/", get(hey_world))
+        .route("/api/login", post(login_post))
+        .fallback_service(static_files_service)
         .with_state(app_state)
         .layer(
             ServiceBuilder::new()
@@ -56,7 +58,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:8080").await.unwrap();
     println!("Listening on http://{}", listener.local_addr().unwrap());
-
     axum::serve(listener, app).await.unwrap();
     Ok(())
 }
