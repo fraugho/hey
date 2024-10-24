@@ -67,8 +67,8 @@ pub async fn get_user_auth_info(form: &LoginForm, pool: &Pool<Postgres>) -> Resu
     sqlx::query_as::<_, Password>(
         "SELECT password, salt FROM users WHERE email = $1 OR name = $2"
     )
-    .bind(&form.email)
-    .bind(&form.name)
+    .bind(&form.login)
+    .bind(&form.login)
     .fetch_one(pool)
     .await
 }

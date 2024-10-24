@@ -15,8 +15,7 @@ use axum_extra::extract::cookie::CookieJar;
 
 #[derive(serde::Deserialize)]
 pub struct LoginForm {
-    pub name: String,
-    pub email: String,
+    pub login: String,
     pub password: String,
 }
 
@@ -52,7 +51,7 @@ pub async fn check_login(
             if argon2.verify_password(salted_client_password.as_bytes(), &parsed_hash).is_ok() {
                 // Password is correct, return a UserSession
                 Ok(UserSession {
-                    username: form.name.to_owned(),
+                    username: form.login.to_owned(),
                 })
             } else {
                 Err(LoginError::InvalidCredentials)

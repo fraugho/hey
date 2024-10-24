@@ -45,14 +45,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         db,
         session_store: DashMap::new(),
     });
-    
+
     let (layer, io) = SocketIo::new_layer();
     io.ns("/", on_connect);
-    
+
     // Configure CORS
     let cors = CorsLayer::new()
-        // Allow specific origin instead of any
         .allow_origin("http://127.0.0.1:8080".parse::<HeaderValue>().unwrap())
+        //.allow_origin("http://127.0.0.1:3000".parse::<HeaderValue>().unwrap())
         .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
         .allow_credentials(true)
         .allow_headers([
@@ -60,7 +60,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             header::ACCEPT,
             header::AUTHORIZATION,
         ]);
-
     let static_files_service = ServeDir::new("frontend/out");
     let protected_routes = Router::new()
         .route("/dashboard", get(|| serve_html_file("dashboard.html")))
@@ -95,35 +94,55 @@ async fn protected_route() -> impl IntoResponse {
 
 async fn login_post(
     State(state): State<Arc<AppState>>,
-    Json(login): Json<auth::LoginForm>,
+    Json(login): Json<LoginForm>,
 ) -> impl IntoResponse {
-    info!("login recieved");
+    info!("login received");
     match auth::check_login(&login, state.clone()).await {
         Ok(user_session) => {
-            // Generate a session ID and store the session
             let session_id = Uuid::new_v4().to_string();
             state.session_store.insert(session_id.clone(), user_session);
 
-            // Set session cookie
-            let cookie = format!("session_id={}; HttpOnly; SameSite=Strict; Path=/", session_id);
+            // Create a JSON response
+            let json_response = Json(serde_json::json!({
+                "status": "success",
+                "redirect": "/dashboard"
+            }));
 
-            // Create a response and insert the Set-Cookie header
-            let mut response = Redirect::to("/dashboard").into_response();
-            response.headers_mut().insert(header::SET_COOKIE, cookie.parse().unwrap());
+            // Set the cookie
+            let cookie = Cookie::build("session_id")
+                .path("/")
+                .secure(true)
+                .http_only(true)
+                .same_site(axum_extra::extract::cookie::SameSite::Strict)
+                .finish();
 
-            response
+            // Create the response with both JSON and cookie
+            (
+                StatusCode::OK,
+                [(header::SET_COOKIE, cookie.to_string())],
+                json_response,
+            ).into_response()
         }
         Err(LoginError::InvalidCredentials) => {
-            // Handle invalid credentials, possibly returning an error response
-            (StatusCode::UNAUTHORIZED, "Invalid credentials").into_response()
+            (
+                StatusCode::UNAUTHORIZED,
+                Json(serde_json::json!({
+                    "status": "error",
+                    "message": "Invalid credentials"
+                }))
+            ).into_response()
         }
         _ => {
-            // Handle other potential errors
-            (StatusCode::INTERNAL_SERVER_ERROR, "An error occurred").into_response()
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({
+                    "status": "error",
+                    "message": "An error occurred"
+                }))
+            ).into_response()
         }
     }
 }
-
 async fn on_connect(socket: SocketRef) {
     info!("socket connected: {}", socket.id);
     socket.on("message", |_socket: SocketRef, Data::<Value>(data)| {

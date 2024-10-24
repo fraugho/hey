@@ -18,6 +18,11 @@ import {
     TabsTrigger,
 } from "@/components/ui/tabs"
 
+interface LoginForm {
+    login: string;
+    password: string;
+}
+
 export function LoginCard(): JSX.Element {
     const [loading, setLoading] = useState<boolean>(false)
     const [error, setError] = useState<string>('')
@@ -28,30 +33,44 @@ export function LoginCard(): JSX.Element {
         setLoading(true)
 
         const formData = new FormData(e.currentTarget)
+        const loginData: LoginForm = {
+            login: formData.get('username') as string,  // Still get it from username field but map to name
+            password: formData.get('password') as string,
+        }
         
         try {
+            console.log('Sending login request:', loginData);
+            
             const response = await fetch('http://localhost:8080/api/login', {
                 method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'Accept': 'application/json',
                 },
-                body: formData,
+                body: JSON.stringify(loginData),
                 credentials: 'include',
-            })
+            });
 
-            if (response.ok) {
-                const data = await response.json()
-                // Handle successful login here
-                console.log('Login successful:', data)
+            if (!response.ok) {
+                const text = await response.text();
+                console.log('Response not OK:', response.status, response.statusText);
+                console.log('Response text:', text);
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Login response:', data);
+
+            if (data.status === 'success') {
+                window.location.href = data.redirect || '/dashboard';
             } else {
-                const errorData = await response.json()
-                setError(errorData.message || 'Login failed. Please try again.')
+                setError(data.message || 'Login failed. Please try again.');
             }
         } catch (err) {
-            console.error('Login error:', err)
-            setError('Network error. Please try again.')
+            console.error('Login error:', err);
+            setError('Network error. Please try again.');
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     }
 
@@ -61,24 +80,35 @@ export function LoginCard(): JSX.Element {
         setLoading(true)
 
         const formData = new FormData(e.currentTarget)
+        const signupData: LoginForm = {
+            login: formData.get('username') as string,  // Changed here too
+            password: formData.get('password') as string,
+        }
 
         try {
             const response = await fetch('http://localhost:8080/api/signup', {
                 method: 'POST',
                 headers: {
+                    'Content-Type': 'application/json',
                     'Accept': 'application/json',
                 },
-                body: formData,
+                body: JSON.stringify(signupData),
                 credentials: 'include',
             })
 
             if (response.ok) {
                 const data = await response.json()
                 console.log('Signup successful:', data)
-                // Handle successful signup here
+                window.location.href = '/dashboard'
             } else {
-                const errorData = await response.json()
-                setError(errorData.message || 'Signup failed. Please try again.')
+                let errorMessage = 'Signup failed. Please try again.'
+                try {
+                    const errorData = await response.json()
+                    errorMessage = errorData.message || errorMessage
+                } catch {
+                    // If parsing JSON fails, use default error message
+                }
+                setError(errorMessage)
             }
         } catch (err) {
             console.error('Signup error:', err)
